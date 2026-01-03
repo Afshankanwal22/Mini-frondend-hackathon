@@ -1,22 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-   <!-- Include this script tag or install `@tailwindplus/elements` via npm: -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script> -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 text-slate-200">
 <header class="bg-gray-900">
   <nav aria-label="Global" class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
     <div class="flex lg:flex-1">
@@ -104,10 +97,116 @@
 </header>
 
 
+  <!-- ===== Contact Section ===== -->
+  <section id="contactForm" class="max-w-7xl mx-auto px-6 py-20">
 
+    <!-- Heading -->
+    <div class="text-center mb-14">
+      <h1 class="text-4xl md:text-5xl font-bold text-white">
+        Contact <span class="text-blue-500">Us</span>
+      </h1>
+      <p class="mt-4 text-slate-400 max-w-2xl mx-auto">
+        Have a question, idea, or project? We’d love to hear from you.
+      </p>
+    </div>
 
+    <div class="grid md:grid-cols-2 gap-12">
 
+      <!-- ===== Contact Info ===== -->
+      <div class="space-y-6">
 
+        <div class="bg-slate-900 rounded-2xl p-6">
+          <h3 class="text-xl font-semibold text-white mb-2">Get in Touch</h3>
+          <p class="text-slate-400">
+            Reach out to us anytime. We usually respond within 24 hours.
+          </p>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-6 flex items-center gap-4">
+          <span class="text-blue-500 text-2xl">📧</span>
+          <div>
+            <p class="text-sm text-slate-400">Email</p>
+            <p class="font-medium text-white">contact@yourcompany.com</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-6 flex items-center gap-4">
+          <span class="text-blue-500 text-2xl">📞</span>
+          <div>
+            <p class="text-sm text-slate-400">Phone</p>
+            <p class="font-medium text-white">+92 300 1234567</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-6 flex items-center gap-4">
+          <span class="text-blue-500 text-2xl">📍</span>
+          <div>
+            <p class="text-sm text-slate-400">Address</p>
+            <p class="font-medium text-white">
+              Karachi, Pakistan
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== Contact Form ===== -->
+      <div class="bg-slate-900 rounded-2xl p-8 shadow-xl">
+
+        <form class="space-y-5">
+
+          <div>
+            <label class="text-sm text-slate-400">Name</label>
+            <input
+              type="text"
+              placeholder="Your Name"
+              class="w-full mt-1 px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm text-slate-400">Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              class="w-full mt-1 px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm text-slate-400">Message</label>
+            <textarea
+              rows="5"
+              placeholder="Write your message..."
+              class="w-full mt-1 px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 transition py-3 rounded-xl font-semibold text-white"
+          >
+            Send Message
+          </button>
+
+        </form>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== Map / Footer CTA ===== -->
+  <section class="bg-slate-900 py-14">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <h2 class="text-2xl font-bold text-white mb-3">
+        We’re Here to Help
+      </h2>
+      <p class="text-slate-400 max-w-2xl mx-auto">
+        Whether you need support or want to start a new project, feel free to reach out.
+      </p>
+    </div>
+  </section>
    <footer class="bg-slate-900 text-slate-300">
   <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
@@ -168,11 +267,29 @@
 </footer>
 
 
-<!-- Scripts -->
+
+
+
+      <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module" src="app.js"></script>
+  <script>
+     const contactForm = document.getElementById("contactForm");
 
+  contactForm.addEventListener("submit", (e) => {
+    e.preventDefault(); // ❌ page reload stop
 
-  </body>
+    Swal.fire({
+      icon: "success",
+      title: "Message Sent ✅",
+      text: "Thank you for contacting us. We’ll get back to you soon!",
+      confirmButtonColor: "#2563eb",
+    });
+
+    // optional: form reset
+    contactForm.reset();
+  });
+  </script>
+    </body>
 </html>

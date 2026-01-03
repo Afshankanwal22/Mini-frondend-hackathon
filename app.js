@@ -121,6 +121,10 @@ btn && btn.addEventListener("click", async (e) => {
         });
 
 });
+
+// admin login //
+
+  const adminEmails = ["kanwalafshan2244@gmail.com"];
 // ============= login ============
 
 const loginEmail = document.getElementById("loginEmail");
