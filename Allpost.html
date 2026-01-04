@@ -85,6 +85,7 @@ async function fetchPosts() {
         <h2 class="text-lg font-bold">${post.title}</h2>
         <p class="text-sm text-slate-300 mt-1">${post.content}</p>
         ${post.image_url ? `<img src="${post.image_url}" class="w-full h-40 object-cover mt-2 rounded-xl">` : ""}
+        <button onclick="window.location.href='detail.html?id=${post.id}'" class="read-more-btn text-blue-400 text-sm font-semibold hover:underline mb-2">READ MORE</button>
       </div>
     `;
   }
