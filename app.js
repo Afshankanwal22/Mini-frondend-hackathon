@@ -82,7 +82,7 @@ btn && btn.addEventListener("click", async (e) => {
         timer: 2000,
         showConfirmButton: false,
     }).then(() => {
- window.location.href = "login.html";
+ window.location.href = "index.html";
     });
 
     // ===== Image Upload =====
@@ -211,7 +211,7 @@ loginBtn && loginBtn.addEventListener("click", async (e) => {
     //     }
     // }, 1500);
     setTimeout(() => {
-        window.location.href = "index.html";
+        window.location.href = "post.html";
     }, 1500);
 });
 
