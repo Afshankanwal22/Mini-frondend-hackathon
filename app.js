@@ -103,7 +103,7 @@ btn && btn.addEventListener("click", async (e) => {
 
     // ===== Get Public URL =====
     const { data: imgData } = client.storage
-        .from("all-users-data")
+        .from("hackathon-profile")
         .getPublicUrl(fileName);
 
     const profileImageUrl = imgData.publicUrl;
