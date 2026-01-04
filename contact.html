@@ -27,13 +27,6 @@
       </button>
     </div>
     <el-popover-group class="hidden lg:flex lg:gap-x-12">
-      <div class="relative">
-        <button popovertarget="desktop-menu-product" class="flex items-center gap-x-1 text-sm/6 font-semibold text-white">
-          Product
-        </button>
-
-      </div>
-
       <a href="#" class="text-sm font-medium text-slate-300 hover:text-white transition">Home</a>
       <a href="#" class="text-sm font-medium text-slate-300 hover:text-white transition">Features</a>
       <a href="about.html" class="text-sm font-medium text-slate-300 hover:text-white transition">About Us</a>
@@ -71,11 +64,6 @@
           <div class="mt-6 flow-root">
             <div class="-my-6 divide-y divide-white/10">
               <div class="space-y-2 py-6">
-                <div class="-mx-3">
-                  <button type="button" command="--toggle" commandfor="products" class="flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-white hover:bg-white/5">
-                    Product
-                  </button>
-                </div>
                 <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5">Features</a>
                 <a href="about.html" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5">About Us </a>
                 <a href="contact.html" class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5">Contact Us</a>
@@ -275,11 +263,39 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module" src="app.js"></script>
   <script>
-     const contactForm = document.getElementById("contactForm");
+    const form = document.getElementById("contactForm");
 
-  contactForm.addEventListener("submit", (e) => {
-    e.preventDefault(); // ❌ page reload stop
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
 
+    const name = form.querySelector('input[type="text"]').value.trim();
+    const email = form.querySelector('input[type="email"]').value.trim();
+    const message = form.querySelector("textarea").value.trim();
+
+    // ❌ Empty check
+    if (name === "" || email === "" || message === "") {
+      Swal.fire({
+        icon: "warning",
+        title: "Incomplete Form ⚠️",
+        text: "Please fill all fields before submitting.",
+        confirmButtonColor: "#2563eb",
+      });
+      return;
+    }
+
+    // ❌ Email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email ❌",
+        text: "Please enter a valid email address.",
+        confirmButtonColor: "#2563eb",
+      });
+      return;
+    }
+
+    // ✅ Success
     Swal.fire({
       icon: "success",
       title: "Message Sent ✅",
@@ -287,9 +303,8 @@
       confirmButtonColor: "#2563eb",
     });
 
-    // optional: form reset
-    contactForm.reset();
+    form.reset();
   });
-  </script>
+</script>
     </body>
 </html>
