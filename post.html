@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Create Post | Postify</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-black text-slate-200 min-h-screen">
@@ -45,15 +46,11 @@
 </main>
 
 <script>
-/// 🔹 Supabase credentials
+// 🔹 Supabase credentials
 const SUPABASE_URL = "https://eyyoigiytzhbtcwqvooa.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5eW9pZ2l5dHpoYnRjd3F2b29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDE0OTUsImV4cCI6MjA3MDUxNzQ5NX0.2LNSR60X9QXh2oih_bmnP31iKo5pV82-0cPa06J2L8k";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5eW9pZ2l5dHpoYnRjd3F2b29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDE0OTUsImV4cCI6MjA3MDUxNzQ5NX0.2LNSR60X9QXh2oih_bmnP31iKo5pV82-0cPa06J2L8k";
 
-// 🔹 Create Supabase client
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log(client);
-
 
 // DOM elements
 const postForm = document.getElementById("postForm");
@@ -63,36 +60,63 @@ const titleInput = document.getElementById("title");
 const contentInput = document.getElementById("content");
 const imageInput = document.getElementById("image");
 
-// Submit handler
+// Submit handler with SweetAlert
 postForm.addEventListener("submit", async e => {
   e.preventDefault();
 
   const id = postIdInput.value;
-  const user_name = userNameInput.value;
-  const title = titleInput.value;
-  const content = contentInput.value;
+  const user_name = userNameInput.value.trim();
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
   const imageFile = imageInput.files[0];
   let image_url = null;
 
-  if (imageFile) {
-    const fileName = `post-images/${Date.now()}_${imageFile.name}`;
-    const { error: uploadError } = await client.storage.from('post-images').upload(fileName, imageFile);
-    if (uploadError) return alert(uploadError.message);
+  try {
+    // Image upload
+    if (imageFile) {
+      const fileName = `post-images/${Date.now()}_${imageFile.name}`;
+      const { error: uploadError } = await client.storage.from('post-images').upload(fileName, imageFile);
+      if (uploadError) throw uploadError;
 
-    const { data } = client.storage.from('post-images').getPublicUrl(fileName);
-    image_url = data.publicUrl;
-    console.log("Image URL:", image_url);
+      const { data } = client.storage.from('post-images').getPublicUrl(fileName);
+      image_url = data.publicUrl;
+    }
+
+    // Insert / Update
+    if (id) {
+      const { error } = await client.from("posts").update({ user_name, title, content, image_url }).eq("id", id);
+      if (error) throw error;
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Updated!',
+        text: 'Your post has been updated successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } else {
+      const { error } = await client.from("posts").insert([{ user_name, title, content, image_url }]);
+      if (error) throw error;
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Created!',
+        text: 'Your post has been published successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    }
+
+    postForm.reset();
+    postIdInput.value = "";
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops!',
+      text: err.message || 'Something went wrong',
+    });
   }
-
-  if (id) {
-    await client.from("posts").update({ user_name:user_name, title:title, content:content, image_url:image_url }).eq("id", id);
-  } else {
-    await client.from("posts").insert([{ user_name:user_name, title:title, content:content, image_url:image_url }]);
-  }
-
-  postForm.reset();
-  postIdInput.value = "";
-  alert("Post Created! Go to 'View All Posts' page to see it.");
 });
 </script>
 
