@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Posts | Postify</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen">
+
+<header class="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
+  <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+    My Posts
+  </h1>
+  <div class="flex gap-2">
+    <a href="post.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
+      Create New Post
+    </a>
+    <a href="Allpost.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
+  View All Posts
+</a>
+
+    <button id="logoutBtn" class="text-sm px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white">
+      Logout
+    </button>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto p-4 sm:p-6">
+  <div id="posts" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
+</main>
+
+<script>
+  // 🔹 Supabase credentials
+const SUPABASE_URL = "https://eyyoigiytzhbtcwqvooa.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5eW9pZ2l5dHpoYnRjd3F2b29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDE0OTUsImV4cCI6MjA3MDUxNzQ5NX0.2LNSR60X9QXh2oih_bmnP31iKo5pV82-0cPa06J2L8k";
+
+// 🔹 Create Supabase client
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+console.log(client);
+
+const postsDiv = document.getElementById("posts");
+const logoutBtn = document.getElementById("logoutBtn");
+let currentUser = null;
+
+// ✅ Check login
+async function checkUser(){
+  const { data:{ session } } = await client.auth.getSession();
+  if(!session){
+    Swal.fire({ icon:'info', title:'Please login', timer:1500, showConfirmButton:false });
+    setTimeout(()=>window.location.href="index.html",1500);
+    return;
+  }
+  currentUser = session.user;
+  fetchPosts();
+}
+
+// ✅ Format datetime
+function formatDateTime(dateString){
+  return new Date(dateString).toLocaleString(undefined,{
+    year:'numeric', month:'short', day:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+}
+
+// ✅ Fetch posts
+async function fetchPosts(){
+  const { data, error } = await client.from("posts")
+    .select("*")
+    .eq("user_id", currentUser.id)
+    .order("created_at",{ ascending:false });
+
+  if(error) return Swal.fire({ icon:'error', title:'Oops!', text:error.message });
+
+  postsDiv.innerHTML="";
+  if(!data || data.length===0){
+    postsDiv.innerHTML=`<p class="text-center text-slate-400 col-span-full mt-6">You have no posts yet.</p>`;
+    return;
+  }
+
+  data.forEach(post=>{
+    const createdAt = post.created_at ? formatDateTime(post.created_at) : '';
+    postsDiv.innerHTML+=`
+      <div class="bg-slate-900 rounded-3xl shadow-lg p-5 hover:scale-105 transform transition duration-300 ease-in-out border border-slate-800">
+  <!-- Post Title -->
+  <h2 class="text-lg font-bold text-white line-clamp-2">${post.title}</h2>
+  
+  <!-- Post Date -->
+  <p class="text-xs text-slate-400 mt-1">${createdAt}</p>
+  
+  <!-- Post Content -->
+  <p class="text-sm text-slate-300 mt-3 line-clamp-4">${post.content}</p>
+  
+  <!-- Post Image -->
+  ${post.image_url ? `
+    <img src="${post.image_url}" 
+         class="w-full h-48 sm:h-40 object-cover rounded-2xl mt-4 border border-slate-700 shadow-sm">
+  ` : ""}
+  
+  <!-- Action Buttons -->
+  <div class="flex gap-3 mt-4">
+    <button onclick="editPost('${post.id}')" 
+            class="flex-1 text-sm font-semibold px-3 py-2 bg-yellow-500 rounded-xl hover:bg-yellow-400 transition">
+      Edit
+    </button>
+    <button onclick="deletePost('${post.id}')" 
+            class="flex-1 text-sm font-semibold px-3 py-2 bg-red-600 rounded-xl hover:bg-red-500 transition">
+      Delete
+    </button>
+  </div>
+</div>
+
+    `;
+  });
+}
+
+// ✅ Edit post
+function editPost(postId){
+  window.location.href = `post.html?edit=${postId}`;
+}
+
+// ✅ Delete post
+async function deletePost(postId){
+  const confirm = await Swal.fire({
+    title:'Delete Post?',
+    icon:'warning',
+    showCancelButton:true,
+    confirmButtonColor:'#d33',
+    cancelButtonColor:'#3085d6',
+    confirmButtonText:'Yes, delete it!'
+  });
+  if(confirm.isConfirmed){
+    const { error } = await client.from("posts").delete()
+      .eq("id", postId)
+      .eq("user_id", currentUser.id);
+    if(error) return Swal.fire({ icon:'error', title:'Oops!', text:error.message });
+    Swal.fire({ icon:'success', title:'Deleted!', timer:1500, showConfirmButton:false });
+    fetchPosts();
+  }
+}
+
+// ✅ Logout
+logoutBtn.addEventListener("click", async ()=>{
+  await client.auth.signOut();
+  window.location.href="index.html";
+});
+
+// ✅ Init
+checkUser();
+</script>
+
+</body>
+</html>

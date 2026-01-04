@@ -18,9 +18,11 @@
 
 <header class="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
   <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">All Posts</h1>
-  <a href="post.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
-    Create New Post
+  <a href="mypost.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
+    Create Your Post
   </a>
+  
+  <button id="logoutBtn" class="text-sm px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white">Logout</button>
 </header>
 
 <main class="max-w-6xl mx-auto p-4 sm:p-6">
@@ -36,94 +38,68 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const postsDiv = document.getElementById("posts");
+const logoutBtn = document.getElementById("logoutBtn");
 
-// 🔹 Fetch posts
+// 🔹 Check if user is logged in
+async function checkUser() {
+  const { data: { session } } = await client.auth.getSession();
+  if (!session) {
+    Swal.fire({ icon: 'info', title: 'Please Login', text: 'Redirecting to login page...', timer: 1500, showConfirmButton: false });
+    setTimeout(() => { window.location.href = "login.html"; }, 1500);
+  }
+}
+
+// 🔹 Fetch author info from all-users-data table
+async function getAuthor(user_id) {
+  const { data, error } = await client
+    .from('all-users-data')
+    .select('name, profile_img')
+    .eq('user_id', user_id)
+    .single();
+  
+  if (error || !data) return { name: 'Anonymous', profile_img: '' };
+  return data;
+}
+
+// 🔹 Fetch all posts
 async function fetchPosts() {
   const { data, error } = await client
     .from("posts")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    return Swal.fire({ icon: 'error', title: 'Oops!', text: error.message });
-  }
+  if (error) return Swal.fire({ icon: 'error', title: 'Oops!', text: error.message });
 
   postsDiv.innerHTML = "";
 
-  data.forEach(post => {
+  for (const post of data) {
+    const author = await getAuthor(post.user_id);
+
     postsDiv.innerHTML += `
       <div class="bg-slate-900 rounded-3xl shadow p-4 transition hover:-translate-y-1 hover:shadow-violet-500/20 relative">
+        <div class="flex items-center gap-2 mb-2">
+          ${author.profile_img ? `<img src="${author.profile_img}" class="w-8 h-8 rounded-full object-cover">` : `<div class="w-8 h-8 rounded-full bg-slate-700"></div>`}
+          <p class="text-sm text-slate-400">By: ${author.name}</p>
+        </div>
 
-        <p class="text-sm text-slate-400 mb-1">By: ${post.user_name || 'Anonymous'}</p>
         <h2 class="text-lg font-bold">${post.title}</h2>
         <p class="text-sm text-slate-300 mt-1">${post.content}</p>
         ${post.image_url ? `<img src="${post.image_url}" class="w-full h-40 object-cover mt-2 rounded-xl">` : ""}
-
-        <!-- Buttons -->
-        <div class="flex justify-end gap-2 mt-3">
-          <button onclick="editPost(${post.id}, '${post.title.replace(/'/g, "\\'")}', '${post.content.replace(/'/g, "\\'")}', '${(post.user_name || 'Anonymous').replace(/'/g, "\\'")}')"
-            class="px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 font-semibold text-sm">
-            Edit
-          </button>
-          <button onclick="deletePost(${post.id})"
-            class="px-3 py-1 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/40 font-semibold text-sm">
-            Delete
-          </button>
-        </div>
       </div>
     `;
-  });
-}
-
-fetchPosts();
-
-// 🔹 Delete Post with SweetAlert
-async function deletePost(id) {
-  try {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: "This post will be permanently deleted!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
-    });
-
-    if (result.isConfirmed) {
-      const { error } = await client.from("posts").delete().eq("id", id);
-      if (error) throw error;
-
-      await Swal.fire({
-        icon: 'success',
-        title: 'Deleted!',
-        text: 'Your post has been deleted.',
-        timer: 1500,
-        showConfirmButton: false
-      });
-
-      fetchPosts(); // refresh posts
-    }
-  } catch (err) {
-    console.error(err);
-    Swal.fire({ icon: 'error', title: 'Oops!', text: err.message || 'Something went wrong' });
   }
 }
 
-// 🔹 Edit Post info popup (optional)
-function editPost(id, title, content, user_name) {
-  Swal.fire({
-    icon: 'info',
-    title: 'Editing Post',
-    text: `You are editing: "${title}" by ${user_name}`,
-    timer: 1800,
-    showConfirmButton: false
-  });
+// 🔹 Logout
+logoutBtn.addEventListener("click", async () => {
+  const { error } = await client.auth.signOut();
+  if (error) return Swal.fire({ icon: 'error', title: 'Error', text: error.message });
+  window.location.href = "index.html";
+});
 
-  // Redirect to post.html with query parameter for editing
-  window.location.href = `post.html?id=${id}`;
-}
+// 🔹 Initialize
+checkUser();
+fetchPosts();
 
 </script>
 </body>

@@ -1,11 +1,4 @@
-// 🔹 Supabase credentials
-const SUPABASE_URL = "https://eyyoigiytzhbtcwqvooa.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5eW9pZ2l5dHpoYnRjd3F2b29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDE0OTUsImV4cCI6MjA3MDUxNzQ5NX0.2LNSR60X9QXh2oih_bmnP31iKo5pV82-0cPa06J2L8k";
 
-// 🔹 Create Supabase client
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log(client);
 
 // =====signup work=========
 
@@ -104,7 +97,7 @@ btn && btn.addEventListener("click", async (e) => {
 
     // ===== Get Public URL =====
     const { data: imgData } = client.storage
-        .from("hackathon-profile")
+        .from("post-images")
         .getPublicUrl(fileName);
 
     const profileImageUrl = imgData.publicUrl;
@@ -115,16 +108,13 @@ btn && btn.addEventListener("click", async (e) => {
         .insert({
             name: data.user.user_metadata.username,
             email: data.user.email,
-            // role: data.user.user_metadata.role,
             user_id: data.user.id,
             profile_img: profileImageUrl,
         });
+        console.log(data);
+        
 
 });
-
-// admin login //
-
-  const adminEmails = ["kanwalafshan2244@gmail.com"];
 // ============= login ============
 
 const loginEmail = document.getElementById("loginEmail");
@@ -177,23 +167,7 @@ loginBtn && loginBtn.addEventListener("click", async (e) => {
         return;
     }
 
-    // let userId = data.user.id;
-
-    // const { data: roleData, error: roleError } = await client
-    //     .from("all-users-data")
-    //     .select("role")
-    //     .eq("user_id", userId)
-    //     .single();
-
-    // if (roleError) {
-    //     Swal.fire({
-    //         icon: "error",
-    //         title: "Error",
-    //         text: "Role fetch nahi ho raha"
-    //     });
-    //     return;
-    // }
-
+    
     // ✅ success + redirect
     Swal.fire({
         icon: "success",
@@ -202,64 +176,8 @@ loginBtn && loginBtn.addEventListener("click", async (e) => {
         timer: 1500,
         showConfirmButton: false
     });
-
-    // setTimeout(() => {
-    //     if (roleData.role === "admin") {
-    //         window.location.href = "dashboard.html";
-    //     } else {
-    //         window.location.href = "index.html";
-    //     }
-    // }, 1500);
     setTimeout(() => {
         window.location.href = "post.html";
     }, 1500);
 });
 
-const logoutBtn = document.getElementById("logoutBtn");
-
-logoutBtn &&
-  logoutBtn.addEventListener("click", async () => {
-    const result = await Swal.fire({
-      title: "Logout?",
-      text: "Are you sure you want to logout?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Logout",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-    });
-
-    if (!result.isConfirmed) return;
-
-    // 🔹 Supabase logout
-    const { error } = await client.auth.signOut();
-
-    if (error) {
-      Swal.fire("Error", error.message, "error");
-      return;
-    }
-
-    Swal.fire({
-      icon: "success",
-      title: "Logged out",
-      text: "You have been logged out successfully",
-      timer: 1500,
-      showConfirmButton: false,
-      didClose: () => {
-        window.location.href = "login.html";
-      },
-    });
-  });
-
-  
-const mobile = document.getElementById("moblog");
-
-mobile &&
-  mobile.addEventListener("click", async () => {
-     const { error } = await client.auth.signOut();
-      window.location.href = "login.html";
-    
-    });
-
-// ============= End ============
