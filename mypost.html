@@ -139,7 +139,7 @@ async function fetchPosts(){
                class="w-full h-48 sm:h-40 object-cover rounded-2xl mt-4 border border-slate-700 shadow-sm">
         ` : ""}
         <div class="flex gap-3 mt-4">
-          <button onclick="editPost('${post.id}')" 
+          <button onclick="editPost('${post.id}' , '${post.title}', '${post.content}')" 
                   class="flex-1 text-sm font-semibold px-3 py-2 bg-yellow-500 rounded-xl hover:bg-yellow-400 transition">
             Edit
           </button>
@@ -154,9 +154,108 @@ async function fetchPosts(){
 }
 
 // ✅ Edit post
-function editPost(postId){
-  window.location.href = `post.html?edit=${postId}`;
-}
+// function editPost(postId){
+//   window.location.href = `post.html?edit=${postId}`;
+
+  
+// }
+
+
+window.editPost = async function (postId, title, content, oldImageUrl = "") {
+
+  const { value: formValues } = await Swal.fire({
+    title: "Edit Post ✏️",
+    html: `
+      <input 
+        id="swal-title" 
+        class="swal2-input" 
+        placeholder="Post Title"
+        value="${title}"
+      >
+
+      <textarea 
+        id="swal-content" 
+        class="swal2-textarea" 
+        placeholder="Post Content"
+      >${content}</textarea>
+
+      <input 
+        type="file" 
+        id="upImg" 
+        class="swal2-file"
+        accept="image/*"
+      >
+
+      ${oldImageUrl ? `<img src="${oldImageUrl}" class="w-full rounded-lg mt-2">` : ""}
+    `,
+    showCancelButton: true,
+    confirmButtonText: "Update",
+    cancelButtonText: "Cancel",
+    preConfirm: () => {
+      const newTitle = document.getElementById("swal-title").value.trim();
+      const newContent = document.getElementById("swal-content").value.trim();
+      const file = document.getElementById("upImg").files[0];
+
+      if (!newTitle || !newContent) {
+        Swal.showValidationMessage("Title aur Content required hain");
+        return false;
+      }
+
+      return { newTitle, newContent, file };
+    }
+  });
+
+  if (!formValues) return;
+
+  let imageUrl = oldImageUrl;
+
+  // ✅ If new image selected → upload
+  if (formValues.file) {
+    const fileName = `post-${Date.now()}-${formValues.file.name}`;
+
+    const { error: uploadError } = await client.storage
+      .from("post-images")   // 🔴 apna bucket name
+      .upload(fileName, formValues.file, { upsert: true });
+
+    if (uploadError) {
+      Swal.fire("Upload Failed", uploadError.message, "error");
+      return;
+    }
+
+    const { data } = client.storage
+      .from("post-images")
+      .getPublicUrl(fileName);
+
+    imageUrl = data.publicUrl;
+  }
+
+  // ✅ Update post
+  const { error } = await client
+    .from("posts")
+    .update({
+      title: formValues.newTitle,
+      content: formValues.newContent,
+      image_url: imageUrl,
+    })
+    .eq("id", postId);
+
+  if (error) {
+    Swal.fire("Update Failed", error.message, "error");
+    return;
+  }
+
+  Swal.fire({
+    icon: "success",
+    title: "Post Updated 🎉",
+    timer: 1500,
+    showConfirmButton: false,
+  });
+
+  fetchPosts();
+};
+
+
+
 
 // ✅ Delete post
 async function deletePost(postId){
