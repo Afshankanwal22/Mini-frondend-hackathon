@@ -1,4 +1,10 @@
+// 🔹 Supabase credentials
+const SUPABASE_URL = "https://eyyoigiytzhbtcwqvooa.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5eW9pZ2l5dHpoYnRjd3F2b29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDE0OTUsImV4cCI6MjA3MDUxNzQ5NX0.2LNSR60X9QXh2oih_bmnP31iKo5pV82-0cPa06J2L8k";
 
+// 🔹 Create Supabase client
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // =====signup work=========
 
@@ -84,7 +90,7 @@ btn && btn.addEventListener("click", async (e) => {
 
     const { error: uploadError } = await client.storage
         .from("hackathon-profile")
-        .upload(fileName, profileImgFile, { upsert: true });
+        .upload(fileName, profileImgFile);
 
     if (uploadError) {
         Swal.fire({
@@ -97,10 +103,11 @@ btn && btn.addEventListener("click", async (e) => {
 
     // ===== Get Public URL =====
     const { data: imgData } = client.storage
-        .from("post-images")
+        .from("all-users-data")
         .getPublicUrl(fileName);
 
     const profileImageUrl = imgData.publicUrl;
+console.log(profileImageUrl);
 
     // ===== Insert User Data =====
     const { error: insertError } = await client

@@ -49,6 +49,7 @@ const SUPABASE_ANON_KEY =
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 console.log(client);
 
+
 // DOM elements
 const postForm = document.getElementById("postForm");
 const postIdInput = document.getElementById("postId");
@@ -117,6 +118,7 @@ postForm.addEventListener("submit", async e=>{
   }
 });
 </script>
+<script src="app.js"></script>
 
 </body>
 </html>

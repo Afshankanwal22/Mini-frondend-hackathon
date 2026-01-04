@@ -14,13 +14,16 @@
   <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
     My Posts
   </h1>
-  <div class="flex gap-2">
+  <div class="flex items-center gap-4">
     <a href="post.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
       Create New Post
     </a>
     <a href="Allpost.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
-  View All Posts
-</a>
+      View All Posts
+    </a>
+
+    <!-- Profile Display -->
+    <div id="showImg" class="flex items-center gap-2"></div>
 
     <button id="logoutBtn" class="text-sm px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white">
       Logout
@@ -40,11 +43,53 @@ const SUPABASE_ANON_KEY =
 
 // 🔹 Create Supabase client
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-console.log(client);
 
 const postsDiv = document.getElementById("posts");
 const logoutBtn = document.getElementById("logoutBtn");
 let currentUser = null;
+const showImg = document.getElementById("showImg");
+
+
+// ✅ Show Profile Image + Email
+async function showProfileImg() {
+ 
+  if (!showImg) return;
+
+  try {
+    const { data: getUserData, error: getErr } = await client.auth.getUser();
+    if (getErr) throw getErr;
+
+    const userId = getUserData.user.id;
+
+    const { data: fetchData, error: fetchErr } = await client
+      .from('all-users-data')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    if (fetchErr) {
+      throw fetchErr;
+    }
+    else{
+       showImg.innerHTML = `
+      <div class="flex items-center gap-2">
+        <span class="text-white font-bold">${getUserData.user.email}</span>
+        <img src="${fetchData.profile_img}" 
+             class="rounded-full shadow-lg" 
+             style="width:40px; height:40px;" 
+             alt="profile" />
+      </div>
+    `;
+    }
+console.log(fetchData.profile_img);
+
+    const profileImg = fetchData.profile_img || "https://via.placeholder.com/45";
+    const email = fetchData.email || getUserData.user.email;
+
+   
+  } catch (err) {
+    console.error("Error fetching profile:", err.message);
+  }
+}
 
 // ✅ Check login
 async function checkUser(){
@@ -55,6 +100,7 @@ async function checkUser(){
     return;
   }
   currentUser = session.user;
+  showProfileImg(); // call profile after login check
   fetchPosts();
 }
 
@@ -85,34 +131,24 @@ async function fetchPosts(){
     const createdAt = post.created_at ? formatDateTime(post.created_at) : '';
     postsDiv.innerHTML+=`
       <div class="bg-slate-900 rounded-3xl shadow-lg p-5 hover:scale-105 transform transition duration-300 ease-in-out border border-slate-800">
-  <!-- Post Title -->
-  <h2 class="text-lg font-bold text-white line-clamp-2">${post.title}</h2>
-  
-  <!-- Post Date -->
-  <p class="text-xs text-slate-400 mt-1">${createdAt}</p>
-  
-  <!-- Post Content -->
-  <p class="text-sm text-slate-300 mt-3 line-clamp-4">${post.content}</p>
-  
-  <!-- Post Image -->
-  ${post.image_url ? `
-    <img src="${post.image_url}" 
-         class="w-full h-48 sm:h-40 object-cover rounded-2xl mt-4 border border-slate-700 shadow-sm">
-  ` : ""}
-  
-  <!-- Action Buttons -->
-  <div class="flex gap-3 mt-4">
-    <button onclick="editPost('${post.id}')" 
-            class="flex-1 text-sm font-semibold px-3 py-2 bg-yellow-500 rounded-xl hover:bg-yellow-400 transition">
-      Edit
-    </button>
-    <button onclick="deletePost('${post.id}')" 
-            class="flex-1 text-sm font-semibold px-3 py-2 bg-red-600 rounded-xl hover:bg-red-500 transition">
-      Delete
-    </button>
-  </div>
-</div>
-
+        <h2 class="text-lg font-bold text-white line-clamp-2">${post.title}</h2>
+        <p class="text-xs text-slate-400 mt-1">${createdAt}</p>
+        <p class="text-sm text-slate-300 mt-3 line-clamp-4">${post.content}</p>
+        ${post.image_url ? `
+          <img src="${post.image_url}" 
+               class="w-full h-48 sm:h-40 object-cover rounded-2xl mt-4 border border-slate-700 shadow-sm">
+        ` : ""}
+        <div class="flex gap-3 mt-4">
+          <button onclick="editPost('${post.id}')" 
+                  class="flex-1 text-sm font-semibold px-3 py-2 bg-yellow-500 rounded-xl hover:bg-yellow-400 transition">
+            Edit
+          </button>
+          <button onclick="deletePost('${post.id}')" 
+                  class="flex-1 text-sm font-semibold px-3 py-2 bg-red-600 rounded-xl hover:bg-red-500 transition">
+            Delete
+          </button>
+        </div>
+      </div>
     `;
   });
 }
