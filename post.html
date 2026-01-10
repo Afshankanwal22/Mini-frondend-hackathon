@@ -4,39 +4,105 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Create Post | Postify</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-</head>
-<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-black text-slate-200 min-h-screen">
 
-<header class="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-slate-800">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-    <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+<style>
+/* 🌈 Animated gradient blobs */
+.blob {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.55;
+  animation: float 12s infinite alternate ease-in-out;
+}
+.blob.pink { background: #ec4899; top: -120px; left: -120px; }
+.blob.violet { background: #8b5cf6; bottom: -120px; right: -120px; animation-delay: 2s; }
+
+@keyframes float {
+  from { transform: translateY(0) translateX(0); }
+  to { transform: translateY(-40px) translateX(40px); }
+}
+
+/* 🧊 Card entrance */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(40px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-card {
+  animation: cardEnter .7s ease-out forwards;
+}
+
+/* 📱 Mobile optimizations */
+@media (max-width:640px){
+  .blob { opacity:.35; filter: blur(160px); }
+}
+</style>
+</head>
+
+<body class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-black text-slate-200 min-h-screen overflow-x-hidden">
+
+<!-- 🌈 Background blobs -->
+<div class="blob pink"></div>
+<div class="blob violet"></div>
+
+<!-- 🔝 Header -->
+<header class="sticky top-0 z-20 bg-slate-900/70 backdrop-blur border-b border-slate-800">
+  <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
+    <h1 class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
       Postify
     </h1>
-    <a href="mypost.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
-    My Posts
+    <a href="mypost.html"
+       class="text-xs sm:text-sm px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition">
+      My Posts
     </a>
   </div>
 </header>
 
-<main class="max-w-2xl mx-auto p-4 sm:p-6">
-  <form id="postForm" class="relative bg-slate-900 p-6 rounded-3xl mb-10 space-y-4 shadow-xl border border-slate-800">
-    <input type="text" id="user_name" placeholder="Your Name" required
-      class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 focus:ring-2 focus:ring-violet-500 outline-none" />
-    <input type="hidden" id="postId" />
-    <input id="title" type="text" placeholder="Post title" required
-      class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 focus:ring-2 focus:ring-violet-500 outline-none" />
-    <textarea id="content" rows="4" placeholder="Write something..."
-      class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 focus:ring-2 focus:ring-violet-500 outline-none"></textarea>
+<!-- 📝 Main -->
+<main class="max-w-2xl mx-auto px-3 py-4 sm:px-4 sm:py-6 relative z-10">
+
+<form id="postForm"
+  class="relative bg-slate-900/95 backdrop-blur-xl p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-3 sm:space-y-4
+         shadow-lg sm:shadow-[0_20px_50px_rgba(0,0,0,.6)] border border-slate-800 animate-card">
+
+  <h2 class="text-lg sm:text-xl font-semibold text-center text-slate-100">
+    Create a new post ✨
+  </h2>
+
+  <input type="text" id="user_name" placeholder="Your name" required
+    class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 outline-none
+           focus:ring-2 focus:ring-pink-500 text-sm sm:text-base"/>
+
+  <input type="hidden" id="postId"/>
+
+  <input id="title" type="text" placeholder="Post title" required
+    class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 outline-none
+           focus:ring-2 focus:ring-violet-500 text-sm sm:text-base"/>
+
+  <textarea id="content" rows="4" placeholder="What's on your mind?"
+    class="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 outline-none resize-none
+           focus:ring-2 focus:ring-violet-500 text-sm sm:text-base"></textarea>
+
+  <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3">
     <input id="image" type="file" accept="image/*"
-      class="w-full text-sm file:bg-slate-700 file:border-0 file:rounded-lg file:px-4 file:py-1 file:text-white" />
-    <button id="submitBtn" type="submit"
-      class="w-full bg-gradient-to-r from-pink-500 to-violet-600 hover:opacity-90 p-3 rounded-xl font-bold">
-      Publish Post
-    </button>
-  </form>
+      class="w-full text-xs sm:text-sm
+             file:bg-gradient-to-r file:from-pink-500 file:to-violet-600
+             file:border-0 file:rounded-lg file:px-4 file:py-1.5
+             file:text-white file:font-semibold"/>
+  </div>
+
+  <button id="submitBtn" type="submit"
+    class="w-full bg-gradient-to-r from-pink-500 to-violet-600 hover:opacity-90
+           active:scale-[.98] transition p-3 rounded-xl font-bold text-sm sm:text-base">
+    Publish Post
+  </button>
+
+</form>
 </main>
 
 <script>

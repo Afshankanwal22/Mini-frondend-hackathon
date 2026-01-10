@@ -1,45 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Post Detail | Postify</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Post Detail | Postify</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Supabase -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+  /* 🌈 Background blobs */
+  .blob{
+    position:absolute;
+    width:420px;
+    height:420px;
+    border-radius:50%;
+    filter:blur(180px);
+    opacity:.3;
+    animation:float 14s infinite alternate ease-in-out;
+    z-index:0;
+  }
+  .blob.pink{background:#ec4899;top:-150px;left:-150px}
+  .blob.violet{background:#8b5cf6;bottom:-150px;right:-150px;animation-delay:2s}
+
+  @keyframes float{
+    from{transform:translate(0,0)}
+    to{transform:translate(50px,-50px)}
+  }
+</style>
 </head>
-<body class="bg-slate-950 text-slate-200 min-h-screen">
+<body class="bg-slate-950 text-slate-200 min-h-screen relative overflow-x-hidden font-sans">
 
-<header class="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
+<!-- Background blobs -->
+<div class="blob pink"></div>
+<div class="blob violet"></div>
+
+<header class="sticky top-0 z-20 bg-slate-900/80 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
   <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
     Post Detail
   </h1>
-  <a href="Allpost.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
+  <a href="Allpost.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
     Back to Posts
   </a>
 </header>
 
-<main class="max-w-3xl mx-auto p-4 sm:p-6">
-  <div id="postDetail" class="bg-slate-900 rounded-3xl shadow-lg p-6 mt-6">
+<main class="max-w-3xl mx-auto p-4 sm:p-6 relative z-10">
+  <div id="postDetail" class="bg-slate-900/80 backdrop-blur-md rounded-3xl shadow-xl p-6 mt-6 border border-slate-700 transition hover:shadow-purple-500/30 hover:-translate-y-1 duration-300">
     <p class="text-center text-slate-400">Loading post details...</p>
   </div>
 </main>
 
 <script>
-  // 🔹 Supabase credentials
   const SUPABASE_URL = "https://eyyoigiytzhbtcwqvooa.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5eW9pZ2l5dHpoYnRjd3F2b29hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NDE0OTUsImV4cCI6MjA3MDUxNzQ5NX0.2LNSR60X9QXh2oih_bmnP31iKo5pV82-0cPa06J2L8k";
-
-  // 🔹 Create Supabase client
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const postDetailDiv = document.getElementById("postDetail");
-
-  // ✅ Get post ID from URL
   const urlParams = new URLSearchParams(window.location.search);
   const postId = urlParams.get("id");
 
@@ -49,14 +69,11 @@
     fetchPost(postId);
   }
 
-  // ✅ Fetch post details
   async function fetchPost(id){
     try {
-      // Get post
       const { data: postData, error: postErr } = await client.from("posts").select("*").eq("id", id).single();
       if(postErr) throw postErr;
 
-      // Get author data
       const { data: authorData, error: authorErr } = await client
         .from("all-users-data")
         .select("*")
@@ -69,21 +86,42 @@
         hour:'2-digit', minute:'2-digit'
       });
 
-      // Render UI
       postDetailDiv.innerHTML = `
-        <div class="flex items-center gap-3 mb-4">
-          ${authorData.profile_img 
-            ? `<img src="${authorData.profile_img}" class="w-12 h-12 rounded-full object-cover border border-slate-700">` 
-            : `<div class="w-12 h-12 rounded-full bg-slate-700 border border-slate-600"></div>`}
+        <!-- Author -->
+        <div class="flex items-center gap-3 mb-4 p-3 bg-slate-800/70 backdrop-blur-sm rounded-2xl shadow-md border border-slate-700">
+          <div class="relative">
+            ${authorData.profile_img 
+              ? `<img src="${authorData.profile_img}" class="w-12 h-12 rounded-full object-cover border-2 border-gradient-to-r from-pink-500 to-violet-500 shadow-sm">` 
+              : `<div class="w-12 h-12 rounded-full bg-slate-700 border border-slate-600"></div>`}
+            <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-slate-900 rounded-full"></span>
+          </div>
           <div>
-            <p class="text-sm text-slate-400">By: <span class="font-semibold text-slate-200">${authorData.name}</span></p>
+            <p class="text-sm text-slate-400">By: <span class="font-semibold text-white">${authorData.name}</span></p>
             <p class="text-xs text-slate-500">${createdAt}</p>
           </div>
         </div>
 
-        <h2 class="text-2xl font-bold text-white mb-4">${postData.title}</h2>
-        <p class="text-sm text-slate-300 mb-4">${postData.content}</p>
-        ${postData.image_url ? `<img src="${postData.image_url}" class="w-full h-64 sm:h-80 object-cover rounded-2xl border border-slate-700 shadow-sm">` : ""}
+        <!-- Post Title -->
+        <h2 class="text-3xl font-bold text-white mb-4 px-2">${postData.title}</h2>
+
+        <!-- Post Content -->
+        <p class="text-sm text-slate-300 mb-4 px-2 leading-relaxed">${postData.content}</p>
+
+        <!-- Post Image -->
+        ${postData.image_url ? `<img src="${postData.image_url}" class="w-full h-64 sm:h-80 object-cover rounded-2xl border border-slate-700 shadow-xl transition-transform hover:scale-105 duration-300 mb-4">` : ""}
+
+        <!-- Reactions -->
+        <div class="flex gap-6 px-2 mt-3">
+          <button class="flex items-center gap-1 px-3 py-1 bg-slate-800/50 hover:bg-red-600/50 text-red-400 hover:text-white rounded-xl transition font-semibold transform hover:scale-105">
+            ❤️ Like
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1 bg-slate-800/50 hover:bg-blue-600/50 text-blue-400 hover:text-white rounded-xl transition font-semibold transform hover:scale-105">
+            💬 Comment
+          </button>
+          <button class="flex items-center gap-1 px-3 py-1 bg-slate-800/50 hover:bg-green-600/50 text-green-400 hover:text-white rounded-xl transition font-semibold transform hover:scale-105">
+            🔗 Share
+          </button>
+        </div>
       `;
     } catch(err){
       console.error(err);

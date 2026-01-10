@@ -14,15 +14,20 @@
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-slate-950 text-slate-200 min-h-screen">
+<body class="bg-gradient-to-b from-slate-950 via-slate-900 to-black text-slate-200 min-h-screen">
 
-<header class="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
-  <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">All Posts</h1>
-  <a href="post.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
-    Create Your Post
-  </a>
-  
-  <button id="logoutBtn" class="text-sm px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white">Logout</button>
+<header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur border-b border-slate-800 p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+  <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+    All Posts
+  </h1>
+  <div class="flex items-center gap-3">
+    <a href="post.html" class="px-3 py-1 rounded-full bg-gradient-to-r from-pink-500 to-violet-500 hover:opacity-90 text-white font-semibold transition">
+      Create Your Post
+    </a>
+    <button id="logoutBtn" class="px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white font-semibold transition">
+      Logout
+    </button>
+  </div>
 </header>
 
 <main class="max-w-6xl mx-auto p-4 sm:p-6">
@@ -75,22 +80,28 @@ async function fetchPosts() {
   for (const post of data) {
     const author = await getAuthor(post.user_id);
 
-    postsDiv.innerHTML += `
-      <div class="bg-slate-900 rounded-3xl shadow p-4 transition hover:-translate-y-1 hover:shadow-violet-500/20 relative">
-        <div class="flex items-center gap-2 mb-2">
-          ${author.profile_img ? `<img src="${author.profile_img}" class="w-8 h-8 rounded-full object-cover">` : `<div class="w-8 h-8 rounded-full bg-slate-700"></div>`}
-          <p class="text-sm text-slate-400">By: ${author.name}</p>
-        </div>
+   postsDiv.innerHTML += `
+  <div class="bg-slate-900 rounded-3xl shadow-xl hover:shadow-purple-500/50 transition-transform transform hover:-translate-y-2 duration-300 relative border border-slate-700 overflow-hidden">
+    
+    <!-- Author -->
+    <div class="flex items-center gap-2 mb-2 p-3">
+      ${author.profile_img ? `<img src="${author.profile_img}" class="w-10 h-10 rounded-full object-cover border-2 border-violet-500">` : `<div class="w-12 h-12 rounded-full bg-slate-700 border border-slate-600"></div>`}
+      <p class="text-sm text-slate-400 font-semibold">${author.name}</p>
+    </div>
 
-        <h2 class="text-lg font-bold">${post.title}</h2>
-        <p class="text-sm text-slate-300 mt-1">${post.content}</p>
-        ${post.image_url ? `<img src="${post.image_url}" class="w-full h-40 object-cover mt-2 rounded-xl">` : ""}
-        <button onclick="window.location.href='detail.html?id=${post.id}'" class="read-more-btn text-blue-400 text-sm font-semibold hover:underline mb-2">READ MORE</button>
-      </div>
-    `;
+    <!-- Post content -->
+    <h2 class="text-lg font-bold text-white px-3 line-clamp-2">${post.title}</h2>
+    <p class="text-sm text-slate-300 px-3 mt-2 line-clamp-4">${post.content}</p>
+
+    <!-- Post image -->
+    ${post.image_url ? `<img src="${post.image_url}" class="w-full h-48 object-cover mt-3 rounded-2xl border border-slate-700 shadow-md">` : ""}
+
+    <!-- Read more button -->
+    <!-- Read more --> <button onclick="window.location.href='detail.html?id=${post.id}'" class="read-more-btn mt-3 mx-2 mb-2 text-indigo-400 font-semibold text-sm hover:text-indigo-300 hover:underline transition"> READ MORE </button>
+  </div>
+`;
   }
 }
-
 // 🔹 Logout
 logoutBtn.addEventListener("click", async () => {
   const { error } = await client.auth.signOut();

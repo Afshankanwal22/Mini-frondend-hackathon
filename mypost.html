@@ -4,36 +4,120 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>My Posts | Postify</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+/* 🌈 Background blobs */
+.blob{
+  position:absolute;
+  width:420px;
+  height:420px;
+  border-radius:50%;
+  filter:blur(150px);
+  opacity:.5;
+  animation:float 14s infinite alternate ease-in-out;
+}
+.blob.pink{background:#ec4899;top:-120px;left:-120px}
+.blob.violet{background:#8b5cf6;bottom:-120px;right:-120px;animation-delay:2s}
+
+@keyframes float{
+  from{transform:translate(0,0)}
+  to{transform:translate(40px,-40px)}
+}
+
+/* ✨ Card animation */
+.post-card{
+  animation:fadeUp .6s ease forwards;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(30px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* 📱 Mobile polish */
+@media(max-width:640px){
+  .blob{opacity:.35}
+}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-200 min-h-screen">
 
-<header class="sticky top-0 z-10 bg-slate-900/70 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
-  <h1 class="text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
-    My Posts
-  </h1>
-  <div class="flex items-center gap-4">
-    <a href="post.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
-      Create New Post
-    </a>
-    <a href="Allpost.html" class="text-sm px-3 py-1 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700">
-      View All Posts
-    </a>
+<body class="relative bg-gradient-to-br from-slate-950 via-slate-900 to-black text-slate-200 min-h-screen overflow-x-hidden">
 
-    <!-- Profile Display -->
-    <div id="showImg" class="flex items-center gap-2"></div>
+<!-- 🌈 Background -->
+<div class="blob pink"></div>
+<div class="blob violet"></div>
 
-    <button id="logoutBtn" class="text-sm px-3 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white">
-      Logout
-    </button>
+<!-- 🔝 NAVBAR -->
+<header class="sticky top-0 z-20 bg-slate-900/70 backdrop-blur-xl border-b border-slate-800">
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 flex justify-between items-center">
+
+    <h1 class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-transparent">
+      Postify
+    </h1>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a href="post.html"
+         class="text-xs sm:text-sm px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition">
+        + Create
+      </a>
+
+      <a href="Allpost.html"
+         class="hidden sm:block text-sm px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 transition">
+        Explore
+      </a>
+
+      <div id="showImg" class="hidden sm:flex items-center gap-2"></div>
+
+      <button id="logoutBtn"
+        class="text-xs sm:text-sm px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-500 transition">
+        Logout
+      </button>
+    </div>
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto p-4 sm:p-6">
-  <div id="posts" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
+<!-- 🧱 POSTS -->
+<main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 relative z-10">
+  <div id="posts"
+    class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+  </div>
 </main>
+
+<!-- Edit Modal -->
+<div id="editModal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center">
+  <div class="bg-slate-900 rounded-2xl shadow-2xl p-6 w-full max-w-md transform scale-75 opacity-0 transition-all duration-300 ease-in-out">
+    
+    <h2 class="text-2xl font-bold text-white mb-4 text-center">Edit Post ✏️</h2>
+    
+    <input id="modal-title" type="text" placeholder="Post Title"
+      class="w-full p-3 mb-3 rounded-xl bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-violet-500 outline-none">
+    
+    <textarea id="modal-content" rows="4" placeholder="Post Content"
+      class="w-full p-3 mb-3 rounded-xl bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-violet-500 outline-none"></textarea>
+    
+    <input type="file" id="modal-image" accept="image/*"
+      class="w-full text-sm file:bg-slate-700 file:border-0 file:rounded-lg file:px-4 file:py-1 file:text-white mb-3">
+    
+    <img id="modal-prev-img" class="w-full rounded-xl mb-3 hidden object-cover max-h-52 border border-slate-700 shadow-sm">
+    
+    <div class="flex gap-3 mt-2">
+      <button id="modal-update-btn"
+        class="flex-1 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-violet-600 hover:opacity-90 text-white font-semibold transition active:scale-95">
+        Update
+      </button>
+      <button id="modal-cancel-btn"
+        class="flex-1 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-semibold transition active:scale-95">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
 
 <script>
   // 🔹 Supabase credentials
@@ -139,120 +223,111 @@ async function fetchPosts(){
                class="w-full h-48 sm:h-40 object-cover rounded-2xl mt-4 border border-slate-700 shadow-sm">
         ` : ""}
         <div class="flex gap-3 mt-4">
-          <button onclick="editPost('${post.id}' , '${post.title}', '${post.content}')" 
-                  class="flex-1 text-sm font-semibold px-3 py-2 bg-yellow-500 rounded-xl hover:bg-yellow-400 transition">
-            Edit
-          </button>
-          <button onclick="deletePost('${post.id}')" 
-                  class="flex-1 text-sm font-semibold px-3 py-2 bg-red-600 rounded-xl hover:bg-red-500 transition">
-            Delete
-          </button>
+          <button
+  onclick="editPost('${post.id}','${post.title}','${post.content}','${post.image_url||""}')"
+  class="flex-1 text-xs font-semibold px-3 py-2 rounded-xl
+         bg-blue-500/90 hover:bg-blue-500 text-white
+         transition active:scale-95">
+  Edit
+</button>
+
+         <button
+  onclick="deletePost('${post.id}')"
+  class="flex-1 text-xs font-semibold px-3 py-2 rounded-xl
+         bg-rose-500/90 hover:bg-rose-500 text-white
+         transition active:scale-95">
+  Delete
+</button>
+
         </div>
       </div>
     `;
   });
 }
 
-// ✅ Edit post
-// function editPost(postId){
-//   window.location.href = `post.html?edit=${postId}`;
+const editModal = document.getElementById("editModal");
+const modalTitle = document.getElementById("modal-title");
+const modalContent = document.getElementById("modal-content");
+const modalImage = document.getElementById("modal-image");
+const modalPrevImg = document.getElementById("modal-prev-img");
+const modalUpdateBtn = document.getElementById("modal-update-btn");
+const modalCancelBtn = document.getElementById("modal-cancel-btn");
 
-  
-// }
+let currentEditId = null;
+let oldImageUrl = "";
 
+// Open modal in center
+window.editPost = function(postId, title, content, imageUrl="") {
+  currentEditId = postId;
+  oldImageUrl = imageUrl;
 
-window.editPost = async function (postId, title, content, oldImageUrl = "") {
+  modalTitle.value = title;
+  modalContent.value = content;
 
-  const { value: formValues } = await Swal.fire({
-    title: "Edit Post ✏️",
-    html: `
-      <input 
-        id="swal-title" 
-        class="swal2-input" 
-        placeholder="Post Title"
-        value="${title}"
-      >
-
-      <textarea 
-        id="swal-content" 
-        class="swal2-textarea" 
-        placeholder="Post Content"
-      >${content}</textarea>
-
-      <input 
-        type="file" 
-        id="upImg" 
-        class="swal2-file"
-        accept="image/*"
-      >
-
-      ${oldImageUrl ? `<img src="${oldImageUrl}" class="w-full rounded-lg mt-2">` : ""}
-    `,
-    showCancelButton: true,
-    confirmButtonText: "Update",
-    cancelButtonText: "Cancel",
-    preConfirm: () => {
-      const newTitle = document.getElementById("swal-title").value.trim();
-      const newContent = document.getElementById("swal-content").value.trim();
-      const file = document.getElementById("upImg").files[0];
-
-      if (!newTitle || !newContent) {
-        Swal.showValidationMessage("Title aur Content required hain");
-        return false;
-      }
-
-      return { newTitle, newContent, file };
-    }
-  });
-
-  if (!formValues) return;
-
-  let imageUrl = oldImageUrl;
-
-  // ✅ If new image selected → upload
-  if (formValues.file) {
-    const fileName = `post-${Date.now()}-${formValues.file.name}`;
-
-    const { error: uploadError } = await client.storage
-      .from("post-images")   // 🔴 apna bucket name
-      .upload(fileName, formValues.file, { upsert: true });
-
-    if (uploadError) {
-      Swal.fire("Upload Failed", uploadError.message, "error");
-      return;
-    }
-
-    const { data } = client.storage
-      .from("post-images")
-      .getPublicUrl(fileName);
-
-    imageUrl = data.publicUrl;
+  if(imageUrl) {
+    modalPrevImg.src = imageUrl;
+    modalPrevImg.classList.remove("hidden");
+  } else {
+    modalPrevImg.classList.add("hidden");
   }
 
-  // ✅ Update post
-  const { error } = await client
-    .from("posts")
-    .update({
-      title: formValues.newTitle,
-      content: formValues.newContent,
-      image_url: imageUrl,
-    })
-    .eq("id", postId);
+  editModal.classList.remove("hidden");
 
-  if (error) {
-    Swal.fire("Update Failed", error.message, "error");
+  // Animate in
+  setTimeout(() => {
+    const modalBox = editModal.firstElementChild;
+    modalBox.classList.remove("scale-75","opacity-0");
+    modalBox.classList.add("scale-100","opacity-100");
+  }, 10);
+};
+
+// Close modal
+function closeModal() {
+  const modalBox = editModal.firstElementChild;
+  modalBox.classList.add("scale-75","opacity-0");
+  setTimeout(() => {
+    editModal.classList.add("hidden");
+  }, 300);
+}
+modalCancelBtn.addEventListener("click", closeModal);
+
+// Update post
+modalUpdateBtn.addEventListener("click", async () => {
+  const newTitle = modalTitle.value.trim();
+  const newContent = modalContent.value.trim();
+  const file = modalImage.files[0];
+
+  if(!newTitle || !newContent){
+    alert("Title aur Content required hain");
     return;
   }
 
-  Swal.fire({
-    icon: "success",
-    title: "Post Updated 🎉",
-    timer: 1500,
-    showConfirmButton: false,
-  });
+  let imageUrl = oldImageUrl;
+
+  if(file){
+    const fileName = `post-${Date.now()}-${file.name}`;
+    const { error: uploadError } = await client.storage.from("post-images").upload(fileName, file, { upsert:true });
+    if(uploadError) return alert(uploadError.message);
+    const { data } = client.storage.from("post-images").getPublicUrl(fileName);
+    imageUrl = data.publicUrl;
+  }
+
+  const { error } = await client.from("posts").update({
+    title:newTitle,
+    content:newContent,
+    image_url:imageUrl
+  }).eq("id", currentEditId);
+
+  if(error) return alert(error.message);
 
   fetchPosts();
-};
+  closeModal();
+});
+
+// Close modal if clicked outside
+editModal.addEventListener("click", (e)=>{
+  if(e.target === editModal) closeModal();
+});
 
 
 

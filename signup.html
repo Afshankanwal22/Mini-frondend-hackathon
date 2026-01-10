@@ -10,19 +10,88 @@
 
   <!-- Font Awesome -->
   <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    crossorigin="anonymous" />
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 
+  <style>
+    /* 🌊 Card entry animation */
+    @keyframes cardEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(60px) scale(0.9);
+      }
+      60% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.03);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* 🌊 Floating effect */
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    .animate-card {
+      animation:
+        cardEnter 0.9s cubic-bezier(0.34,1.56,0.64,1),
+        float 6s ease-in-out infinite;
+    }
+
+    /* 🌈 Background blobs */
+    @keyframes blobMove {
+      0% { transform: translate(0,0); }
+      50% { transform: translate(40px,-30px); }
+      100% { transform: translate(0,0); }
+    }
+
+    .blob {
+      animation: blobMove 14s ease-in-out infinite;
+    }
+
+    .blob-delay {
+      animation-delay: 5s;
+    }
+
+    /* ✨ Inputs */
+    input {
+      transition: all 0.25s ease;
+    }
+
+    input:focus {
+      transform: scale(1.02);
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.4);
+    }
+
+    /* 🔘 Buttons */
+    .btn-press {
+      transition: all 0.2s ease;
+    }
+
+    .btn-press:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-press:active {
+      transform: scale(0.96);
+    }
+  </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white px-4">
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white px-4 relative overflow-hidden">
+
+  <!-- Background glow -->
+  <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl blob"></div>
+  <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl blob blob-delay"></div>
 
   <!-- Card -->
-  <div class="w-full max-w-md bg-slate-900/90 backdrop-blur rounded-2xl shadow-2xl p-8">
+  <div class="w-full max-w-md bg-slate-900/85 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-8 border border-slate-800 animate-card">
 
-    <h2 class="text-center text-2xl font-semibold mb-6">
-      Create Account
-    </h2>
+    <h2 class="text-center text-2xl font-semibold mb-1">Create Account ✨</h2>
+    <p class="text-center text-sm text-slate-400 mb-6">Join us and get started</p>
 
     <!-- Name -->
     <label class="text-sm text-slate-400">Name</label>
@@ -30,7 +99,7 @@
       id="name"
       type="text"
       placeholder="John Doe"
-      class="w-full mt-1 mb-4 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none placeholder-slate-500"
+      class="w-full mt-1 mb-4 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 outline-none placeholder-slate-500"
     />
 
     <!-- Email -->
@@ -39,7 +108,7 @@
       id="email"
       type="email"
       placeholder="john@email.com"
-      class="w-full mt-1 mb-4 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none placeholder-slate-500"
+      class="w-full mt-1 mb-4 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 outline-none placeholder-slate-500"
     />
 
     <!-- Password -->
@@ -48,7 +117,7 @@
       id="password"
       type="password"
       placeholder="••••••••"
-      class="w-full mt-1 mb-4 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 focus:ring-2 focus:ring-blue-600 outline-none placeholder-slate-500"
+      class="w-full mt-1 mb-4 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 outline-none placeholder-slate-500"
     />
 
     <!-- Profile Image -->
@@ -56,7 +125,7 @@
     <input
       id="profileImg"
       type="file"
-      class="w-full mt-1 mb-5 px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-sm text-slate-300 focus:ring-2 focus:ring-blue-600 outline-none"
+      class="w-full mt-1 mb-5 px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-sm text-slate-300 outline-none"
     />
 
     <!-- Divider -->
@@ -68,13 +137,11 @@
 
     <!-- Social -->
     <div class="flex gap-3 mb-6">
-      <button
-        class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 transition text-sm">
-        <i class="fa-brands fa-google"></i> Google
+      <button class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-sm btn-press">
+        <i class="fa-brands fa-google text-red-400"></i> Google
       </button>
 
-      <button
-        class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 transition text-sm">
+      <button class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-sm btn-press">
         <i class="fa-brands fa-apple"></i> Apple
       </button>
     </div>
@@ -82,7 +149,7 @@
     <!-- Submit -->
     <button
       id="btn"
-      class="w-full bg-blue-600 hover:bg-blue-700 transition py-3 rounded-xl font-medium">
+      class="w-full   bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 py-3 rounded-xl font-semibold shadow-lg btn-press">
       Create Account
     </button>
 
@@ -98,9 +165,5 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script type="module" src="app.js"></script>
 
-
-
-
-  
 </body>
 </html>
